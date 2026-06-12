@@ -1,0 +1,29 @@
+name: Publish Go SDK
+
+on:
+  push:
+    tags:
+      - 'sdks/go/v*'
+      - 'robolytics-go-v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdks/go
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Regenerate from BSR
+        run: |
+          go install github.com/bufbuild/buf/cmd/buf@latest
+          buf generate --template ../buf.gen.yaml
+      - run: go mod tidy
+      - run: go test ./...
+      - name: Tag and push module
+        run: |
+          git tag "go/$(cat go.mod | head -1 | awk '{print $2}')/$(date +%Y%m%d%H%M%S)"
+          # go get github.com/beaglabs/chaveta/sdks/go@latest

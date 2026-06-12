@@ -1,0 +1,54 @@
+name: Publish C/C++ SDKs
+
+on:
+  push:
+    tags:
+      - 'sdks/c/v*'
+      - 'sdks/cpp/v*'
+      - 'robolytics-c-v*'
+      - 'robolytics-cpp-v*'
+
+jobs:
+  build-c:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdks/c
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
+      - name: Build
+        run: make
+      - name: Create release tarball
+        run: |
+          mkdir -p dist/robolytics-c
+          cp -r include src Makefile dist/robolytics-c/
+          tar -czf robolytics-c.tar.gz -C dist robolytics-c
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: sdks/c/robolytics-c.tar.gz
+
+  build-cpp:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdks/cpp
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev cmake
+      - name: Build
+        run: |
+          cmake -B build
+          cmake --build build
+      - name: Create release tarball
+        run: |
+          mkdir -p dist/robolytics-cpp
+          cp -r include src CMakeLists.txt dist/robolytics-cpp/
+          tar -czf robolytics-cpp.tar.gz -C dist robolytics-cpp
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: sdks/cpp/robolytics-cpp.tar.gz
