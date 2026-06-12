@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: sdks/c
+        working-directory: c
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: sdks/cpp
+        working-directory: cpp
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
